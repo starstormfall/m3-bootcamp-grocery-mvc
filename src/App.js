@@ -10,6 +10,7 @@ export default function App() {
   const [openSingle, setOpenSingle] = useState(false);
   const [products, setProducts] = useState([]);
   const [currentId, setCurrentId] = useState("");
+  const [currentIndex, setCurrentIndex] = useState();
 
   const getInitialData = async () => {
     let initialAPICall = await axios.get(
@@ -41,12 +42,47 @@ export default function App() {
     setProducts(newArray);
   };
 
+  const handleDeleteItem = async (index, productId, product) => {
+    let response = await axios.delete(
+      `${process.env.REACT_APP_API_SERVER}/products/${productId}`
+    );
+    console.log(response);
+    let newArray = [...products];
+    newArray.splice(index, 1);
+    console.log(newArray);
+    setProducts(newArray);
+
+    console.log(index, productId, product);
+  };
+
+  const handleUpdateProduct = async (name, price) => {
+    let updatedProduct = {
+      name,
+      price,
+    };
+
+    let response = await axios.put(
+      `${process.env.REACT_APP_API_SERVER}/products/${currentId}`,
+      updatedProduct
+    );
+    console.log(response.data.name);
+    console.log(response.data.price);
+    let newArray = [...products];
+    newArray[currentIndex].name = name;
+    newArray[currentIndex].price = price;
+    setProducts(newArray);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
         {openSingle ? (
           <div>
-            <SingleProduct toggle={toggleView} id={currentId} />
+            <SingleProduct
+              toggle={toggleView}
+              id={currentId}
+              handleUpdateProduct={handleUpdateProduct}
+            />
           </div>
         ) : (
           <div>
@@ -55,14 +91,33 @@ export default function App() {
             <h6>Products</h6>
             <div className="products-container">
               {products && products.length > 0 ? (
-                products.map((product) => (
+                products.map((product, index) => (
                   <div
-                    className="product"
                     key={product.id}
-                    onClick={() => toggleView(product)}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-around",
+                      marginBottom: "1rem",
+                    }}
                   >
-                    <h4>{product.name}</h4>
-                    <h5>${product.price}</h5>
+                    <div
+                      className="product"
+                      onClick={() => {
+                        toggleView(product);
+                        setCurrentIndex(index);
+                      }}
+                    >
+                      <h4>
+                        {product.name} : ${product.price}
+                      </h4>
+                    </div>
+                    <button
+                      onClick={() =>
+                        handleDeleteItem(index, product.id, product)
+                      }
+                    >
+                      Delete Item
+                    </button>
                   </div>
                 ))
               ) : (
