@@ -21,6 +21,7 @@ export default function App() {
 
   useEffect(() => {
     getInitialData();
+    console.log("does this run?");
   }, []);
 
   const toggleView = (product) => {
@@ -47,10 +48,11 @@ export default function App() {
       `${process.env.REACT_APP_API_SERVER}/products/${productId}`
     );
     console.log(response);
-    let newArray = [...products];
-    newArray.splice(index, 1);
-    console.log(newArray);
-    setProducts(newArray);
+    setProducts(response.data);
+    // let newArray = [...products];
+    // newArray.splice(index, 1);
+    // console.log(newArray);
+    // setProducts(newArray);
 
     console.log(index, productId, product);
   };
